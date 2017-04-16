@@ -57,43 +57,6 @@ namespace ExHentaiDownloader.T
             }
         }
 
-        //static public void AddQueueUserWork(Func<object,IList<T>,Task> aa, IList<T> data)
-        //{
-        //    _t_maxcount = 5;
-        //    if (_QueueData == null) _QueueData = new Queue<T>();
-        //    if (cts == null) cts = new CancellationTokenSource();
-        //    if (MyTaskList == null) MyTaskList = new List<MyTask<T>>();
-        //    if (mre == null) mre = new ManualResetEvent(false);
-
-        //    foreach (var item in data)
-        //    {
-        //        _QueueData.Enqueue(item);
-        //    }
-        //    if (MyTaskList != null && MyTaskList.Count != 5)
-        //    {
-        //        if (_thisAction2 == null) _thisAction2 = aa;
-        //        for (int ii = 0; ii < _t_maxcount; ii++)
-        //        {
-        //            MyTaskList.Add(new MyTask<T>(_thisAction2, _QueueData, data, cts.Token, TaskCreationOptions.LongRunning, mre, oo=> { }));
-        //            MyTaskList[ii].TaskRun();
-        //        }
-        //    }
-
-
-        //    if (_thisAction2 != aa)
-        //    {
-        //        foreach (var item in MyTaskList)
-        //        {
-        //            item.TaskChange(aa, data);
-        //        }
-        //    }
-
-        //    if (_QueueData.Count > 0)
-        //    {
-        //        AllTaskRun();
-        //    }
-        //}
-
         static public void AddQueueUserWork(Func<object, Task> aa, IList<T> data)
         {
             _t_maxcount = 5;
@@ -113,6 +76,19 @@ namespace ExHentaiDownloader.T
                 {
                     MyTaskList.Add(new MyTask<T>(_thisAction2, _QueueData, cts.Token, TaskCreationOptions.LongRunning, mre, oo => { }));
                     MyTaskList[ii].TaskRun();
+                }
+            }
+
+            if (MyTaskList != null)
+            {
+                foreach (var item in MyTaskList)
+                {
+                    if (item.runningTime >= (10 * 1000))
+                    {
+                        MyTaskList.Remove(item);
+                        MyTaskList.Add(new MyTask<T>(_thisAction2, _QueueData, cts.Token, TaskCreationOptions.LongRunning, mre, oo => { }));
+                        MyTaskList[4].TaskRun();
+                    }
                 }
             }
 
@@ -147,6 +123,19 @@ namespace ExHentaiDownloader.T
                 {
                     MyTaskList.Add(new MyTask<T>(_thisAction2, _QueueData, cts.Token, TaskCreationOptions.LongRunning, mre, oo => { }));
                     MyTaskList[ii].TaskRun();
+                }
+            }
+
+            if (MyTaskList != null)
+            {
+                foreach (var item in MyTaskList)
+                {
+                    if (item.runningTime >= (10 * 1000))
+                    {
+                        MyTaskList.Remove(item);
+                        MyTaskList.Add(new MyTask<T>(_thisAction2, _QueueData, cts.Token, TaskCreationOptions.LongRunning, mre, oo => { }));
+                        MyTaskList[4].TaskRun();
+                    }
                 }
             }
 
@@ -204,14 +193,15 @@ namespace ExHentaiDownloader.T
         private Action _work;
         private Action<object> _work2;
         private Func<object,Task> _work3;
-        private Func<object, T, Task> _work4;
-//        private IList<T> _thisList;
+        private Thread _thisThread;
         private bool _isWork;
         private bool _isAlive;
         private bool _isWait;
+        private bool _isAbort;
         private const int timeout_ms = 2000;
         private CancellationToken _ct;
         private ManualResetEvent _mre;
+        private System.Diagnostics.Stopwatch _sw = new System.Diagnostics.Stopwatch();
         #endregion
 
         #region Create
@@ -274,15 +264,19 @@ namespace ExHentaiDownloader.T
                     _isAlive = value;
             }
         }
-        //public IList<T> thisList
-        //{
-        //    get { return _thisList; }
-        //    set
-        //    {
-        //        if (_thisList != value)
-        //            _thisList = value;
-        //    }
-        //}
+        public bool isAbort
+        {
+            get { return _isAbort; }
+            set
+            {
+                if (_isAbort != value)
+                    _isAbort = value;
+            }
+        }
+        public double runningTime
+        {
+            get { return _sw.Elapsed.TotalMilliseconds; }
+        }
 
         #endregion
 
@@ -295,6 +289,7 @@ namespace ExHentaiDownloader.T
                 isAlive = true;
                 Run(async () =>
                 {
+ //                   _thisThread = Thread.CurrentThread;
                     while (isAlive)
                     {
                         ////等待任務
@@ -341,13 +336,16 @@ namespace ExHentaiDownloader.T
                         }
                         if (ss != null)
                         {
+                            _sw.Restart();
                             isWait = false;
                             if (_work != null) _work();
                             else if (_work2 != null) _work2(ss);
                             else if (_work3 != null) await _work3(ss);
+                            _sw.Restart();
                         }
                         else
                         {
+                            _sw.Stop();
                             isWait = true;
                         }
                     }
@@ -368,10 +366,10 @@ namespace ExHentaiDownloader.T
 //            _thisList = list;
         }
 
-        public void TaskStop()
+        public void TaskAbort()
         {
-            isWait = false;
-            isWork = false;
+//            _thisThread.Abort();
+            isAbort = true;
         }
 
         #endregion

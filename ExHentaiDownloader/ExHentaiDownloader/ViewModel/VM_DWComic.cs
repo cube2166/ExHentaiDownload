@@ -115,6 +115,7 @@ namespace ExHentaiDownloader.ViewModel
             };
 
             byte[] bit = await tt;
+            if (bit == null || bit.Length < 5) return;
             using (MemoryStream ms = new System.IO.MemoryStream(bit))
             {
                 var bitmapImage = new BitmapImage();

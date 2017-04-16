@@ -177,6 +177,7 @@ namespace ExHentaiDownloader.Http
 
 
                               tempVM.ImageLink = tempDoc2.DocumentNode.SelectSingleNode(@"//img[@id='img']").GetAttributeValue("src", "");
+                              tempVM.ComicLink = tempComicLink;
                           }
                           tempVM.ComicName = vmc.ComicName;
                           tempVM.ComicNumber = jj++.ToString();

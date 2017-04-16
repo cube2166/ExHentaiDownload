@@ -335,17 +335,18 @@ namespace ExHentaiDownloader.ViewModel
         #endregion
 
         #region Command
-        //private CommandHandler _IsSelected;
-        //public CommandHandler IsSelected
-        //{
-        //    get
-        //    {
-        //        return (_IsSelected) ?? (_IsSelected = new CommandHandler(x =>
-        //          {
-        //              new W_ShowComic(this).ShowDialog();
-        //          }));
-        //    }
-        //}
+        private CommandHandler _ReDownload;
+        public CommandHandler ReDownload
+        {
+            get
+            {
+                return (_ReDownload) ?? (_ReDownload = new CommandHandler(x =>
+                  {
+                      System.Diagnostics.Process.Start("chrome.exe", this.ComicLink);
+//                      MyThreadPool<VM_Comic>.AddQueueUserWork(_DownloadImage, this);
+                  }));
+            }
+        }
 
         #endregion
 
