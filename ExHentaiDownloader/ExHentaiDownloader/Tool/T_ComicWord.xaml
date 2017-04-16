@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="ExHentaiDownloader.Tool.T_ComicWord"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ExHentaiDownloader.Tool"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="300" d:DataContext="{d:DesignData Source=../Design/D_ComicThumbnail.xaml}" Style="{DynamicResource UserControlStyle1}">
+    <UserControl.Resources>
+        <Style x:Key="UserControlStyle1" TargetType="{x:Type UserControl}">
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="UIElement.MouseMove"/>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#7FD39000"/>
+                </Trigger>
+            </Style.Triggers>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type UserControl}">
+                        <ControlTemplate.Resources>
+                            <Storyboard x:Key="Storyboard1"/>
+                        </ControlTemplate.Resources>
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="Black"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="{Binding BackGround}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30*"/>
+            <RowDefinition Height="10*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="80*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Text="{Binding ComicNumber}" TextAlignment="Center" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontWeight="Bold" Margin="5,0"/>
+
+        <TextBlock Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Text="{Binding ComicName}" Width="auto" TextAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White"/>
+        <!--<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="{Binding DownloadStatus}" Margin="10,0"/>
+            <TextBlock Text="{Binding DownloadPercentage}" Margin="10,0"/>
+        </StackPanel>-->
+    </Grid>
+</UserControl>

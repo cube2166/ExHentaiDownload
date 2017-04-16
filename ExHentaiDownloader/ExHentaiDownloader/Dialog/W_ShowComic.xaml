@@ -1,0 +1,52 @@
+﻿<Window x:Class="ExHentaiDownloader.Dialog.W_ShowComic"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ExHentaiDownloader.Dialog"
+        xmlns:tool="clr-namespace:ExHentaiDownloader.Tool"
+        xmlns:Behavior="clr-namespace:ExHentaiDownloader.Behavior"
+        mc:Ignorable="d"
+        Behavior:WindowClosingBehavior.Closed="{Binding IsClosed}"
+        Title=""  Height="768" Width="1027" d:DataContext="{d:DesignData Source=../Design/D_ShowComic.xaml}" Background="#FF131313">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50*"/>
+            <ColumnDefinition Width="20*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="200*"/>
+            <RowDefinition Height="20*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="{Binding ComicName}" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="White"/>
+
+        <ScrollViewer Grid.Row="1">
+            <Image Source="{Binding ComicImage}"/>
+        </ScrollViewer>
+        <tool:T_ComicWordList Grid.Column="1" Grid.RowSpan="2" Background="#FF2E2E2E"></tool:T_ComicWordList>
+        <Grid Grid.Column="1" Grid.Row="3" Background="#FF2E2E2E">
+            <ProgressBar Visibility="{Binding ProgressVisibility}" BorderBrush="Transparent" Background="Transparent" Foreground="{Binding ProgressStatus}" IsIndeterminate="{Binding ProgressIndeterminate}" Value="{Binding ProgressValue}" Margin="0,20"/>
+        </Grid>
+        <Grid Grid.Column="0" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80*"/>
+                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="80*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="100*"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Download" Command="{Binding CmdDownload}" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{DynamicResource ButtonStyle}" Foreground="White" FontWeight="Bold" FontSize="16"/>
+            </StackPanel>
+
+        </Grid>
+
+
+
+
+    </Grid>
+</Window>

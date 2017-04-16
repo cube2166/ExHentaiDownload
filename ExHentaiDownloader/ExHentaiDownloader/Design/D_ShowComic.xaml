@@ -1,0 +1,32 @@
+﻿<VM_ShowComic xmlns="clr-namespace:ExHentaiDownloader.ViewModel" ComicName="bbb">
+    <VM_ShowComic.ProgressIndeterminate>true</VM_ShowComic.ProgressIndeterminate>
+    <VM_ShowComic.ProgressValue>0</VM_ShowComic.ProgressValue>
+    <VM_ShowComic.ProgressStatus>Green</VM_ShowComic.ProgressStatus>
+    <VM_ShowComic.ComicCollect>
+            <VM_Comic ComicName="[Mitsuya] Koukan Hatsujou Play Ch. 1-4" 
+                  ComicNumber="1" 
+                  ComicLink="" 
+                  ThumbnailLink="https://ehgt.org/t/a1/cd/a1cd35b525da345fe03a4272bc0337cb542be1b9-262188-863-1200-jpg_l.jpg"/>
+            <VM_Comic ComicName="[Mitsuya] Koukan Hatsujou Play Ch. 1-4" 
+                  ComicNumber="2" 
+                  ComicLink="" 
+                  ThumbnailLink="https://ehgt.org/t/a1/cd/a1cd35b525da345fe03a4272bc0337cb542be1b9-262188-863-1200-jpg_l.jpg"/>
+            <VM_Comic ComicName="[Mitsuya] Koukan Hatsujou Play Ch. 1-4" 
+                  ComicNumber="3" 
+                  ComicLink="" 
+                  ThumbnailLink="https://ehgt.org/t/a1/cd/a1cd35b525da345fe03a4272bc0337cb542be1b9-262188-863-1200-jpg_l.jpg"/>
+            <VM_Comic ComicName="[Mitsuya] Koukan Hatsujou Play Ch. 1-4" 
+                  ComicNumber="4" 
+                  ComicLink="" 
+                  ThumbnailLink="https://ehgt.org/t/a1/cd/a1cd35b525da345fe03a4272bc0337cb542be1b9-262188-863-1200-jpg_l.jpg"/>
+            <VM_Comic ComicName="[Mitsuya] Koukan Hatsujou Play Ch. 1-4" 
+                  ComicNumber="5" 
+                  ComicLink="" 
+                  ThumbnailLink="https://ehgt.org/t/a1/cd/a1cd35b525da345fe03a4272bc0337cb542be1b9-262188-863-1200-jpg_l.jpg"/>
+            <VM_Comic ComicName="[Mitsuya] Koukan Hatsujou Play Ch. 1-4" 
+                  ComicNumber="110" 
+                  ComicLink="" 
+                  ThumbnailLink="https://ehgt.org/t/a1/cd/a1cd35b525da345fe03a4272bc0337cb542be1b9-262188-863-1200-jpg_l.jpg"/>
+   </VM_ShowComic.ComicCollect>
+
+</VM_ShowComic>

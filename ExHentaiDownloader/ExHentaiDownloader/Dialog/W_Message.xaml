@@ -1,0 +1,30 @@
+﻿<Window x:Class="ExHentaiDownloader.Dialog.W_Message"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ExHentaiDownloader.Dialog"
+        mc:Ignorable="d"
+        Title="W_Message" Height="200" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" BorderBrush="Black" BorderThickness="4" Background="#FF2C2C2C">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Margin="5,10">
+            <TextBlock FontSize="20" Foreground="Gray" Margin="8,0" x:Name="MessageBoxTitle"></TextBlock>
+        </Grid>
+        <Grid Grid.Row="1">
+            <TextBlock TextWrapping="Wrap" FontSize="20" Foreground="White" Margin="16,4,4,4" x:Name="Message" />
+        </Grid>
+        <Grid Grid.Row="2" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Click="Button_Click_1" FontSize="20" Content="Yes" Visibility="Collapsed" Margin="10,0,5,0"/>
+            <Button Click="Button_Click_2" FontSize="20" Grid.Column="1" Content="Close" Margin="5,0,10,0" Style="{DynamicResource ButtonStyle}" Foreground="White"/>
+        </Grid>
+    </Grid>
+</Window>

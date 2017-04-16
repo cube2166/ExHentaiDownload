@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="ExHentaiDownloader.Tool.T_ComicWordList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ExHentaiDownloader.Tool"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:Behavior="clr-namespace:ExHentaiDownloader.Behavior"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="300" d:DataContext="{d:DesignData Source=../Design/D_ComicThumbnailList.xaml}">
+    <Grid>
+        <ListBox x:Name="MainListView" ItemsSource="{Binding ComicCollect}" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" BorderBrush="{x:Null}" Style="{DynamicResource ListBoxItemStyle1}">
+            <ListBox.Resources>
+                <Style TargetType="ListBoxItem" >
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <local:T_ComicWord Margin="0,5"></local:T_ComicWord>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.Resources>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel IsItemsHost="True" Orientation="Vertical"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseLeftButtonUp">
+                    <i:InvokeCommandAction Command="{Binding ChooseOne}" CommandParameter="{Binding ElementName=MainListView,Path=SelectedItem}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </ListBox>
+    </Grid>
+</UserControl>

@@ -1,0 +1,15 @@
+﻿<Window x:Class="ExHentaiDownloader.Dialog.W_ComicDownload"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ExHentaiDownloader.Dialog"
+        xmlns:tool="clr-namespace:ExHentaiDownloader.Tool"
+        mc:Ignorable="d"
+        xmlns:Behavior="clr-namespace:ExHentaiDownloader.Behavior"
+        Behavior:WindowClosingBehavior.Closed="{Binding IsClosed}"
+        Title=""  Height="768" Width="420" d:DataContext="{d:DesignData Source=../Design/D_ShowComic.xaml}" Background="#FF131313" ResizeMode="NoResize">
+    <Grid>
+        <tool:T_ComicDownloadList/>
+    </Grid>
+</Window>

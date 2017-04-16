@@ -1,0 +1,45 @@
+﻿<Window x:Class="ExHentaiDownloader.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ExHentaiDownloader"
+        xmlns:tool="clr-namespace:ExHentaiDownloader.Tool"
+        mc:Ignorable="d" Height="768" Width="1024" d:DataContext="{d:DesignData Source=./Design/D_ComicThumbnailList.xaml}" Background="#FF131313">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="980*"/>
+            <ColumnDefinition Width="10*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="100*"/>
+            <RowDefinition Height="880*"/>
+            <RowDefinition Height="10*"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="1" Grid.Column="1" Background="#FF131313">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160*"/>
+                    <ColumnDefinition Width="340*"/>
+                </Grid.ColumnDefinitions>
+                <ProgressBar Visibility="{Binding ProgressVisibility}" BorderBrush="Transparent" Background="Transparent" Foreground="{Binding ProgressStatus}" IsIndeterminate="{Binding ProgressIndeterminate}" Value="{Binding ProgressValue}" Margin="0,20"/>
+                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="2" >
+                    <TextBox Text="{Binding KeyWord}" Width="200" Margin="10,0,0,0" FontWeight="Bold" FontSize="16">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding CmdSearch}" Key="Return" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <Button Content="Search" Margin="10,0,0,0" FontWeight="Bold" FontSize="16" Command="{Binding SearchClick}" Style="{DynamicResource ButtonStyle}" Foreground="White"/>
+                </StackPanel>
+            </Grid>
+
+        </Border>
+        <Border Grid.Row="2" Grid.Column="1" Background="#FF2E2E2E">
+            <tool:T_ComicThumbnailList/>
+        </Border>
+
+
+    </Grid>
+</Window>

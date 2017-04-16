@@ -1,0 +1,8 @@
+﻿<VM_Login  xmlns="clr-namespace:ExHentaiDownloader.ViewModel">
+    <VM_Login.Password>12345</VM_Login.Password>
+    <VM_Login.UserName>HelloWorld</VM_Login.UserName>
+    <VM_Login.ProgressIndeterminate>true</VM_Login.ProgressIndeterminate>
+    <VM_Login.ProgressValue>100</VM_Login.ProgressValue>
+    <VM_Login.ProgressStatus>Red</VM_Login.ProgressStatus>
+    
+</VM_Login>
