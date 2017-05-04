@@ -44,7 +44,12 @@ namespace ExHentaiDownloader.Dialog
 
                         await OnLoaddingAsync();
                         break;
-  
+                    }
+                case VM_Login.CancelClickStr:
+                    {
+                        this.Close();
+                        Environment.Exit(Environment.ExitCode);
+                        break;
                     }
                 default:
                     break;

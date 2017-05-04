@@ -10,9 +10,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using ExHentaiDownloader.T;
+using ExHentaiDownloader.Guild;
 using ExHentaiDownloader.Command;
 using System.Windows.Media;
+using System.Threading;
 
 namespace ExHentaiDownloader.ViewModel
 {
@@ -35,7 +36,11 @@ namespace ExHentaiDownloader.ViewModel
         public VM_DWComic(ObservableCollection<VM_Comic> clist)
         {
             ComicCollect = clist;
-            MyThreadPool<VM_Comic>.AddQueueUserWork(DownloadImage, ComicCollect);
+            Task.Run(() =>
+            {
+                SpinWait.SpinUntil(() => false, 2000);
+                Guild<VM_Comic>.PublishTaskList(DownloadImage, ComicCollect);
+            });           
         }
         #endregion
 
@@ -58,13 +63,12 @@ namespace ExHentaiDownloader.ViewModel
 
         #region Method
 
-        private async Task DownloadImage(object sender)
+        private void DownloadImage(object sender)
         {
             VM_Comic comic = (VM_Comic)sender;
-            //ObservableCollection<VM_Comic> ComicCollect = (ObservableCollection < VM_Comic > )List;
-            int number = int.Parse(comic.ComicNumber) - 1;
             if (comic == null) return;
             WebClient client = new WebClient();
+            client.Proxy = null;
             string SavePath = null;
             SavePath = comic.ComicName.Trim();
             SavePath = f_CleanInput(SavePath);
@@ -73,27 +77,28 @@ namespace ExHentaiDownloader.ViewModel
 
 
             client.Headers["Cookie"] = CookieHelper.GetCookie();
-            var tt = client.DownloadDataTaskAsync(comic.ImageLink);
+            //            var tt = client.DownloadDataTaskAsync(comic.ImageLink);
+            String photolocation = SavePath + "/" + comic.ComicNumber + ".jpg";
             client.DownloadProgressChanged += (s, e) =>
             {
-                App.Current.Dispatcher.Invoke(() =>
+                int temp = e.ProgressPercentage;
+                if (temp % 10 == 0)
                 {
-                    //ComicCollect[number].ProgressPercentage = e.ProgressPercentage;
-                    //ComicCollect[number].ProgressStatus = "Downloading";
-                    comic.ProgressPercentage = e.ProgressPercentage;
-                    comic.ProgressStatus = "Downloading";
-                });
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        comic.ProgressPercentage = temp;
+                        comic.ProgressStatus = "Downloading";
+                    });
+                }
+
             };
-            client.DownloadDataCompleted += (s, e) =>
+            client.DownloadFileCompleted += (s, e) =>
             {
 
                 if (!e.Cancelled && e.Error == null)
                 {
                     App.Current.Dispatcher.Invoke(() =>
                         {
-                            //ComicCollect[number].ProgressPercentage = 100;
-                            //ComicCollect[number].ProgressStatus = "Success";
-                            //ComicCollect[number].ProgressColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF017C11"));
                             comic.ProgressPercentage = 100;
                             comic.ProgressStatus = "Success";
                             comic.ProgressColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF017C11"));
@@ -103,43 +108,41 @@ namespace ExHentaiDownloader.ViewModel
                 {
                     App.Current.Dispatcher.Invoke(() =>
                         {
-                            //ComicCollect[number].ProgressPercentage = 0;
-                            //ComicCollect[number].ProgressStatus = "Fail";
-                            //ComicCollect[number].ProgressColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF7A0000"));
                             comic.ProgressPercentage = 0;
                             comic.ProgressStatus = "Fail";
                             comic.ProgressColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF7A0000"));
                         });
+                    File.Delete(photolocation);
                 }
 
             };
-
-            byte[] bit = await tt;
-            if (bit == null || bit.Length < 5) return;
-            using (MemoryStream ms = new System.IO.MemoryStream(bit))
+            try
             {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = ms;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                ms.Dispose();
+                var tt =  client.DownloadFileTaskAsync(new Uri(comic.ImageLink), photolocation);
+                tt.Wait(new TimeSpan(0, 0, 30));
 
-                JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-                String photolocation = SavePath + "/" + comic.ComicNumber + ".jpg";
-                encoder.Frames.Add(BitmapFrame.Create((BitmapImage)bitmapImage));
-                using (var filestream = new FileStream(photolocation, FileMode.Create))
-                    encoder.Save(filestream);
-
+                if (client.IsBusy == true)
+                {
+                    client.CancelAsync();
+                    return;
+                }
+                    
             }
-
+            catch (Exception e)
+            {
+                return;
+            }
+            GC.Collect();
         }
         private string f_CleanInput(string strIn)
         {
             try
             {
-                return Regex.Replace(strIn, @"[^\w\.@-\[\]\(\)\-]", " ",
-                                     RegexOptions.None, TimeSpan.FromSeconds(1.5));
+                string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+                Regex r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
+                return r.Replace(strIn, "");
+                //return Regex.Replace(strIn, @"[^\w\.@-\[\]\(\)\-]", " ",
+                //                     RegexOptions.None, TimeSpan.FromSeconds(1.5));
             }
             catch (RegexMatchTimeoutException)
             {
@@ -157,7 +160,7 @@ namespace ExHentaiDownloader.ViewModel
             {
                 return (_IsClosed) ?? (_IsClosed = new CommandHandler(x =>
                 {
-                    MyThreadPool<VM_Comic>.AllTaskStop();
+                    Guild<VM_Comic>.RequireGuildStop();
                 }));
             }
         }

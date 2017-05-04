@@ -127,6 +127,16 @@ namespace ExHentaiDownloader.ViewModel
             }
         }
 
+        public const string CancelClickStr = "CancelClick";
+        private CommandHandler _CancelClickStr;
+        public CommandHandler CancelClick
+        {
+            get
+            {
+                return _CancelClickStr ?? (_CancelClickStr = new CommandHandler(x => ExecuteDelegate(CancelClickStr)));
+            }
+        }
+
         public Func<object, string, Task> LoginWindowDelegate;
 
         private void ExecuteDelegate(string ss)

@@ -46,9 +46,9 @@
 
             <!--<Image Grid.Row="1" Grid.Column="1" Source="{Binding Result}" DataContext="{Binding ThumbnailLink, Converter={StaticResource LinkToBitmapImageWitchCookieConverter}}">-->
             <Image Grid.Row="1" Grid.Column="1" Source="{Binding ComicImage}">
-                <Image.InputBindings>
+                <!--<Image.InputBindings>
                     <MouseBinding Gesture="LeftClick" Command="{Binding IsSelected}" />
-                </Image.InputBindings>
+                </Image.InputBindings>-->
             </Image>
             <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding ComicName}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" Foreground="White"/>
         </Grid>

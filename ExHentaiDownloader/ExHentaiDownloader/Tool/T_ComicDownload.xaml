@@ -62,7 +62,7 @@
             </Grid.ColumnDefinitions>
 
 
-            <Button Grid.Column="1" Content="O" Command="{Binding ReDownload}" Margin="2"/>
+            <Button Grid.Column="1" Content="O" Command="{Binding OpenChrome}" Margin="2"/>
 
         </Grid>
     </Grid>

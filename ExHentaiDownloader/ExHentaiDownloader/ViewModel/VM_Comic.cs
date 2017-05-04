@@ -12,7 +12,7 @@ using System.Net;
 using ExHentaiDownloader.Http;
 using System.IO;
 using System.Windows.Markup;
-using ExHentaiDownloader.T;
+using ExHentaiDownloader.Guild;
 using System.Windows.Threading;
 using ExHentaiDownloader.Command;
 using ExHentaiDownloader.Dialog;
@@ -25,7 +25,6 @@ namespace ExHentaiDownloader.ViewModel
     {
         #region Private
         private M_Comic _comic;
-        private Task _task;
         private SolidColorBrush _background;
         #endregion
 
@@ -38,7 +37,7 @@ namespace ExHentaiDownloader.ViewModel
 
         #region Event
         public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string ss)
+        public void OnPropertyChanged(string ss)
         {
             if (PropertyChanged != null)
                  PropertyChanged(this, new PropertyChangedEventArgs(ss));            
@@ -103,24 +102,10 @@ namespace ExHentaiDownloader.ViewModel
                 {
                     _comic.ThumbnailLink = value;
                     OnPropertyChanged("ThumbnailLink");
-                    //                   MyThreadPool<VM_Comic>.AddQueueUserWork(_ShowImage, this);
-                    _task = new Task(async () =>
+                    Task.Run(() =>
                     {
-                        await App.Current.Dispatcher.BeginInvoke(new Action(async () =>
-                        {
-                            try
-                            {
-                                ComicImage = await GetImage(value);
-                                OnPropertyChanged("ComicImage");
-                            }
-                            catch (Exception)
-                            {
-                            }
-
-                        }));
-                    }, TaskCreationOptions.LongRunning);
-                    _task.Start();
-
+                        Guild<VM_Comic>.PublishTask(_ShowImage, this);
+                    });
                 }
             }
         }
@@ -193,165 +178,68 @@ namespace ExHentaiDownloader.ViewModel
         #endregion
 
         #region Method
-
-        public void DownliadImage()
+        private void _ShowImage(object sender)
         {
-            MyThreadPool<VM_Comic>.AddQueueUserWork(_DownloadImage, this);
-        }
-
-        private async Task<BitmapImage> GetImage(string link)
-        {
+            VM_Comic comic = (VM_Comic)sender;
+            if (comic == null) return;
             using (WebClient client = new WebClient())
             {
+                client.Proxy = null;
+
                 client.Headers["Cookie"] = CookieHelper.GetCookie();
-                var tt = client.DownloadDataTaskAsync(link);
+                byte[] bit = null;
 
-
-                byte[] bit = await tt;
-                return ByteArrayToBitmapImage(bit);
-            }
-
-        }
-
-        private BitmapImage ByteArrayToBitmapImage(byte[] byteArray)
-        {
-            using (MemoryStream ms = new System.IO.MemoryStream(byteArray))
-            {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = ms;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                ms.Dispose();
-                return bitmapImage;
-            }
-
-        }
-
-        private async Task _ShowImage(object sender)
-        {
-            VM_Comic comic = (VM_Comic)sender;
-            if (comic == null) return;
-            WebClient client = new WebClient();
-
-            client.Headers["Cookie"] = CookieHelper.GetCookie();
-            var tt = client.DownloadDataTaskAsync(comic.ThumbnailLink);
-
-            byte[] bit = await tt;
-            using (MemoryStream ms = new System.IO.MemoryStream(bit))
-            {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = ms;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                ms.Dispose();
- //               App.Current.Dispatcher.Invoke(() =>
- //               {
-                    comic.ComicImage = bitmapImage;
- //               });
-            }
-
-        }
-
-        private async Task _DownloadImage(object sender)
-        {
-            VM_Comic comic = (VM_Comic)sender;
-            int number = int.Parse(comic.ComicNumber) - 1;
-            if (comic == null) return;
-            WebClient client = new WebClient();
-            string SavePath = null;
-            SavePath = comic.ComicName.Trim();
-            SavePath = f_CleanInput(SavePath);
-            if (SavePath.Length > 100) SavePath = SavePath.Substring(0, 100);
-            Directory.CreateDirectory(SavePath);
-
-
-            client.Headers["Cookie"] = CookieHelper.GetCookie();
-            var tt = client.DownloadDataTaskAsync(comic.ImageLink);
-            client.DownloadProgressChanged += (s, e) =>
-            {
-                App.Current.Dispatcher.Invoke(() =>
+                try
                 {
-                    comic.ProgressPercentage = e.ProgressPercentage;
-                    comic.ProgressStatus = "Downloading";
-                });
-            };
-            client.DownloadDataCompleted += (s, e) =>
-            {
-
-                if (!e.Cancelled && e.Error == null)
+                    var tt = client.DownloadDataTaskAsync(comic.ThumbnailLink);
+                    tt.Wait(new TimeSpan(0, 0, 10));
+                    if (client.IsBusy == true)
+                    {
+                        client.CancelAsync();
+                        return;
+                    }
+                    else
+                    {
+                        bit = tt.Result;
+                    }
+                }
+                catch (Exception e)
                 {
+
+                    return;
+                }
+                using (MemoryStream ms = new System.IO.MemoryStream(bit))
+                {
+                    var bitmapImage = new BitmapImage();
+                    bitmapImage.BeginInit();
+                    bitmapImage.StreamSource = ms;
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImage.EndInit();
+                    bitmapImage.Freeze();
+                    ms.Dispose();
                     App.Current.Dispatcher.Invoke(() =>
                     {
-                        comic.ProgressPercentage = 100;
-                        comic.ProgressStatus = "Success";
-                        comic.ProgressColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF017C11"));
+                        comic.ComicImage = bitmapImage;
                     });
                 }
-                else
-                {
-                    App.Current.Dispatcher.Invoke(() =>
-                    {
-                        comic.ProgressPercentage = 0;
-                        comic.ProgressStatus = "Fail";
-                        comic.ProgressColor = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF7A0000"));
-                    });
-                }
-
-            };
-
-            byte[] bit = await tt;
-            using (MemoryStream ms = new System.IO.MemoryStream(bit))
-            {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = ms;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                ms.Dispose();
-
-                JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-                String photolocation = SavePath + "/" + comic.ComicNumber + ".jpg";
-                encoder.Frames.Add(BitmapFrame.Create((BitmapImage)bitmapImage));
-                using (var filestream = new FileStream(photolocation, FileMode.Create))
-                    encoder.Save(filestream);
-
             }
-
-        }
-        private string f_CleanInput(string strIn)
-        {
-            try
-            {
-                return Regex.Replace(strIn, @"[^\w\.@-\[\]\(\)\-]", " ",
-                                     RegexOptions.None, TimeSpan.FromSeconds(1.5));
-            }
-            catch (RegexMatchTimeoutException)
-            {
-                return String.Empty;
-            }
+            GC.Collect();
         }
         #endregion
 
         #region Command
-        private CommandHandler _ReDownload;
-        public CommandHandler ReDownload
+        private CommandHandler _OpenChrome;
+        public CommandHandler OpenChrome
         {
             get
             {
-                return (_ReDownload) ?? (_ReDownload = new CommandHandler(x =>
+                return (_OpenChrome) ?? (_OpenChrome = new CommandHandler(x =>
                   {
                       System.Diagnostics.Process.Start("chrome.exe", this.ComicLink);
-//                      MyThreadPool<VM_Comic>.AddQueueUserWork(_DownloadImage, this);
                   }));
             }
         }
 
         #endregion
-
-
-
-
     }
 }

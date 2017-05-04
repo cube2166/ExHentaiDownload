@@ -1,5 +1,6 @@
 ﻿using ExHentaiDownloader.Command;
 using ExHentaiDownloader.Dialog;
+using ExHentaiDownloader.Guild;
 using ExHentaiDownloader.Http;
 using ExHentaiDownloader.Model;
 using System;
@@ -18,169 +19,58 @@ using System.Windows.Media.Imaging;
 
 namespace ExHentaiDownloader.ViewModel
 {
-    public class VM_ShowComic : INotifyPropertyChanged
+    public class VM_ShowComic : VM_Comic
     {
         #region Private
-        private M_ShowComic _showComic;
         private CancellationTokenSource _cts;
-        private Task _task;
         private ObservableCollection<VM_Comic> _comicCollect;
-        #endregion
-
-        #region Event
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChange(string ss)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(ss));
-        }
         #endregion
 
         #region Create
         public VM_ShowComic(VM_Comic temp)
         {
             _cts = new CancellationTokenSource();
-            _showComic = new M_ShowComic();
-            _showComic.ShowComicData.ComicLink = temp.ComicLink;
-            _showComic.ShowComicData.ComicName = temp.ComicName;
+            base.ComicLink= temp.ComicLink;
+            base.ComicName = temp.ComicName;
 
-            _showComic.ProgressData.ProgressIndeterminate = true;
-            _showComic.ProgressData.ProgressStatus = Brushes.Green;
-            _showComic.ProgressData.ProgressValue = 0;
-            _showComic.ProgressData.ProgressVisibility = Visibility.Collapsed;
+            ProgressColor = Brushes.Green;
+            ProgressVisibility = Visibility.Collapsed;
 
             OnLoading(ComicLink, CookieHelper.GetCookie());
         }
-        public VM_ShowComic()
-        {
-            _cts = new CancellationTokenSource();
-            _showComic = new M_ShowComic();
-            _showComic.ShowComicData.ComicLink = null;
-            _showComic.ShowComicData.ComicName = null;
 
-            _showComic.ProgressData.ProgressIndeterminate = true;
-            _showComic.ProgressData.ProgressStatus = Brushes.Green;
-            _showComic.ProgressData.ProgressValue = 0;
-            _showComic.ProgressData.ProgressVisibility = Visibility.Collapsed;
-
- //           OnLoading(ComicLink, CookieHelper.GetCookie());
-        }
         #endregion
 
         #region Property
         #region ShowComic
-        public string ComicLink
+        private string _ImageLink;
+        new public string ImageLink
         {
-            get { return _showComic.ShowComicData.ComicLink; }
+            get { return _ImageLink; }
             set
             {
-                if(_showComic.ShowComicData.ComicLink != value)
+                if (_ImageLink != value)
                 {
-                    _showComic.ShowComicData.ComicLink = value;
-                    OnPropertyChange("ComicLink");
-                }
-            }
-        }
-        public string ComicName
-        {
-            get { return _showComic.ShowComicData.ComicName; }
-            set
-            {
-                if (_showComic.ShowComicData.ComicName != value)
-                {
-                    _showComic.ShowComicData.ComicName = value;
-                    OnPropertyChange("ComicName");
-                }
-            }
-        }
-        public BitmapImage ComicImage
-        {
-            get { return _showComic.ShowComicData.ComicImage; }
-            set
-            {
-                if (_showComic.ShowComicData.ComicImage != value)
-                {
-                    _showComic.ShowComicData.ComicImage = value;
-                }
-            }
-        }
-        public string ImageLink
-        {
-            get { return _showComic.ShowComicData.ImageLink; }
-            set
-            {
-                if (_showComic.ShowComicData.ImageLink != value)
-                {
-                    _showComic.ShowComicData.ImageLink = value;
-                    OnPropertyChange("ImageLink");
-                    //if (_task.Status == TaskStatus.Running)
-                    //    _task.Dispose();
-                    _task = Task.Run(async () =>
-                    {
-                        await App.Current.Dispatcher.BeginInvoke(new Action(async () =>
-                        {
-                            try
-                            {
-                                ComicImage = await GetImage(value);
-                                OnPropertyChange("ComicImage");
-                            }
-                            catch (Exception)
-                            {
-                            }
+                    _ImageLink = value;
 
-                        }));
-                    });
+                    OnPropertyChanged("ImageLink");
+                    ThumbnailLink = _ImageLink;
                 }
             }
         }
         #endregion
 
         #region Progress
-        public int ProgressValue
-        {
-            get { return _showComic.ProgressData.ProgressValue; }
-            set
-            {
-                if (_showComic.ProgressData.ProgressValue != value)
-                {
-                    _showComic.ProgressData.ProgressValue = value;
-                    OnPropertyChange("ProgressValue");
-                }
-            }
-        }
-        public SolidColorBrush ProgressStatus
-        {
-            get { return _showComic.ProgressData.ProgressStatus; }
-            set
-            {
-                if (_showComic.ProgressData.ProgressStatus != value)
-                {
-                    _showComic.ProgressData.ProgressStatus = value;
-                    OnPropertyChange("ProgressStatus");
-                }
-            }
-        }
-        public bool ProgressIndeterminate
-        {
-            get { return _showComic.ProgressData.ProgressIndeterminate; }
-            set
-            {
-                if (_showComic.ProgressData.ProgressIndeterminate != value)
-                {
-                    _showComic.ProgressData.ProgressIndeterminate = value;
-                    OnPropertyChange("ProgressIndeterminate");
-                }
-            }
-        }
+        private Visibility _ProgressVisibility;
         public Visibility ProgressVisibility
         {
-            get { return _showComic.ProgressData.ProgressVisibility; }
+            get { return _ProgressVisibility; }
             set
             {
-                if (_showComic.ProgressData.ProgressVisibility != value)
+                if (_ProgressVisibility != value)
                 {
-                    _showComic.ProgressData.ProgressVisibility = value;
-                    OnPropertyChange("ProgressVisibility");
+                    _ProgressVisibility = value;
+                    OnPropertyChanged("ProgressVisibility");
                 }
             }
         }
@@ -195,7 +85,7 @@ namespace ExHentaiDownloader.ViewModel
                 if (_comicCollect != value)
                 {
                     _comicCollect = value;
-                    OnPropertyChange("ComicCollect");
+                    OnPropertyChanged("ComicCollect");
                 }
             }
         }
@@ -216,34 +106,6 @@ namespace ExHentaiDownloader.ViewModel
             {
             }
         }
-        private async Task<BitmapImage> GetImage(string link)
-        {
-            using (WebClient client = new WebClient())
-            {
-                client.Headers["Cookie"] = CookieHelper.GetCookie();
-                var tt = client.DownloadDataTaskAsync(link);
-
-
-                byte[] bit = await tt;
-                return ByteArrayToBitmapImage(bit);
-            }
-
-        }
-
-        private BitmapImage ByteArrayToBitmapImage(byte[] byteArray)
-        {
-            using (MemoryStream ms = new System.IO.MemoryStream(byteArray))
-            {
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = ms;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                ms.Dispose();
-                return bitmapImage;
-            }
-
-        }
 
         #endregion
 
@@ -256,6 +118,8 @@ namespace ExHentaiDownloader.ViewModel
                 return (_IsClosed) ?? (_IsClosed = new CommandHandler(x =>
                 {
                     _cts.Cancel();
+                    ComicCollect.Clear();
+                    GC.Collect();
                 }));
             }
         }
@@ -292,9 +156,6 @@ namespace ExHentaiDownloader.ViewModel
                 }));
             }
         }
-
-
         #endregion
-
     }
 }

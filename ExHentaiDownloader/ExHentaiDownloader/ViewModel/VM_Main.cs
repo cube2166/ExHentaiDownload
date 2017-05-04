@@ -11,6 +11,7 @@ using System.Windows.Media;
 using ExHentaiDownloader.Http;
 using ExHentaiDownloader.Command;
 using ExHentaiDownloader.Dialog;
+using ExHentaiDownloader.Guild;
 
 namespace ExHentaiDownloader.ViewModel 
 {
@@ -150,6 +151,7 @@ namespace ExHentaiDownloader.ViewModel
             try
             {
                 ComicCollect.Clear();
+                GC.Collect();
                 ProgressVisibility = Visibility.Visible;
                 for (int ii = 0; ii < 5; ii++)
                 {
@@ -180,6 +182,7 @@ namespace ExHentaiDownloader.ViewModel
             {
                 return _SearchClick ?? (_SearchClick = new CommandHandler(async x =>
                 {
+                    Guild<VM_Comic>.RequireGuildStop();
                     await SearchKeyWord(KeyWord, CookieHelper.GetCookie());
                 }));
             }

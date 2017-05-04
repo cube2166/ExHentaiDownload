@@ -51,7 +51,6 @@ namespace ExHentaiDownloader.Http
                              ComicLink = (a.GetNodebyClassName("id2").Element("a").Attributes["href"].Value),
                              ComicNumber = (a.GetNodebyClassName("id42").InnerText),
                          };
-            var dsa = new ObservableCollection<VM_Comic>(result);
             return new ObservableCollection<VM_Comic>(result);
         }
 
@@ -61,6 +60,7 @@ namespace ExHentaiDownloader.Http
             string url = vmc.ComicLink;
             //下載原始碼
             string htmlstring = await HttpHandler.GetStringWithCookie(url, cookie + unconfig);
+            if (htmlstring == string.Empty) return null;
             ObservableCollection<VM_Comic> tempList = new ObservableCollection<VM_Comic>();
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(htmlstring);
@@ -81,79 +81,44 @@ namespace ExHentaiDownloader.Http
                 }
                 else
                 {
-                    MaxPage = int.Parse(tempArray[2]) % 10;
+                    MaxPage = (int)(long.Parse(tempArray[2]) % 10);
+                    if (MaxPage == 0) MaxPage = 10;
                 }
 
+            }
+            catch (Exception e)
+            {
+            }
+
+            //找名子 <h1 id="gj">[きゃろっと] 夫の同僚に過去の学生の頃の私と現在の人妻の私が種づけされちゃうお話 その後</h1>
+
+            string thisName = null;
+            HtmlNode nameNode = doc.DocumentNode.SelectSingleNode(@"//h1[@id='gj']");
+            try
+            {
+                thisName = nameNode.InnerText;
+                if (thisName == string.Empty) thisName = vmc.ComicName;
             }
             catch (Exception)
             {
             }
 
+
             Task[] TaskList = new Task[5];
 
             for (int iii = 0; iii < TaskList.Length; iii++)
             {
-                //TaskList[iii] = new Task((number) =>
-                //TaskList[iii] = Task.Factory.StartNew(async (number) =>
-                //{
-                //    for (int ll = (int)number; ll < MaxPage; ll += TaskList.Length)
-                //    {
-
-                //        int kk = ll;
-                //        int jj = (kk * 40) + 1;
-                //        //                       HtmlWeb webClient2 = new HtmlWeb();
-                //        string tempStr = await HttpHandler.GetStringWithCookie(url + string.Format("?p={0}", kk), cookie + unconfig);
-                //        HtmlDocument tempDoc = new HtmlDocument();
-                //        tempDoc.LoadHtml(tempStr);
-                //        //                        HtmlDocument doc2 = webClient.Load(url + string.Format("?p={0}", kk));
-
-                //        HtmlNodeCollection evenDoc = tempDoc.DocumentNode.SelectNodes(@"//div[@class='gdtm']/div/a");
-                //        if (evenDoc == null) continue;
-
-                //        foreach (var item in evenDoc)
-                //        {
-                //            if (cts.IsCancellationRequested)
-                //            {
-                //                // 這裡撰寫取消工作的程式碼。
-                //                return;
-                //            }
-                //            VM_Comic tempVM = new VM_Comic();
-                //            string tempComicLink = item.GetAttributeValue("href", "");
-
-                //            if (tempComicLink != null)
-                //            {
-                //                //HtmlDocument doc3 = webClient.Load(tempM.ComicLink);
-                //                string tempStr2 = await HttpHandler.GetStringWithCookie(tempComicLink, cookie + unconfig);
-                //                HtmlDocument tempDoc2 = new HtmlDocument();
-                //                tempDoc2.LoadHtml(tempStr2);
-
-
-                //                tempVM.ImageLink = tempDoc2.DocumentNode.SelectSingleNode(@"//img[@id='img']").GetAttributeValue("src", "");
-                //            }
-                //            tempVM.ComicName = vmc.ComicName;
-                //            tempVM.ComicNumber = jj++.ToString();
-                //            lock (tempList)
-                //            {
-                //                f_OnComicInsert(tempList, tempVM);
-                //            }
-                //        }
-                //    }
-                //}, iii);
-                //                TaskList[iii].Start();
-
-                TaskList[iii] = new Task(async (number) =>
+              TaskList[iii] = new Task(async (number) =>
               {
                   for (int ll = (int)number; ll < MaxPage; ll += TaskList.Length)
                   {
 
                       int kk = ll;
                       int jj = (kk * 40) + 1;
-                       //                       HtmlWeb webClient2 = new HtmlWeb();
                        string tempStr = await HttpHandler.GetStringWithCookie(url + string.Format("?p={0}", kk), cookie + unconfig);
+                      if (tempStr == string.Empty) continue;
                       HtmlDocument tempDoc = new HtmlDocument();
                       tempDoc.LoadHtml(tempStr);
-                       //                        HtmlDocument doc2 = webClient.Load(url + string.Format("?p={0}", kk));
-
                        HtmlNodeCollection evenDoc = tempDoc.DocumentNode.SelectNodes(@"//div[@class='gdtm']/div/a");
                       if (evenDoc == null) continue;
 
@@ -172,14 +137,15 @@ namespace ExHentaiDownloader.Http
                           {
                                //HtmlDocument doc3 = webClient.Load(tempM.ComicLink);
                                string tempStr2 = await HttpHandler.GetStringWithCookie(tempComicLink, cookie + unconfig);  //
-                               HtmlDocument tempDoc2 = new HtmlDocument();
+                              if (tempStr2 == string.Empty) continue;
+                              HtmlDocument tempDoc2 = new HtmlDocument();
                               tempDoc2.LoadHtml(tempStr2);
 
 
                               tempVM.ImageLink = tempDoc2.DocumentNode.SelectSingleNode(@"//img[@id='img']").GetAttributeValue("src", "");
                               tempVM.ComicLink = tempComicLink;
                           }
-                          tempVM.ComicName = vmc.ComicName;
+                          tempVM.ComicName = thisName;
                           tempVM.ComicNumber = jj++.ToString();
                           lock (tempList)
                           {
