@@ -52,7 +52,7 @@ namespace ExHentaiDownloader.ViewModel
                 if (_ImageLink != value)
                 {
                     _ImageLink = value;
-
+                                     
                     OnPropertyChanged("ImageLink");
                     ThumbnailLink = _ImageLink;
                 }
@@ -85,10 +85,40 @@ namespace ExHentaiDownloader.ViewModel
                 if (_comicCollect != value)
                 {
                     _comicCollect = value;
+                    _comicCollect.CollectionChanged += _comicCollect_CollectionChanged;
+
                     OnPropertyChanged("ComicCollect");
                 }
             }
         }
+
+        private void _comicCollect_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {           
+            VM_Comic_Collect temp = _comicCollect as VM_Comic_Collect;
+            if (temp.MaxCount == temp.Count)
+                canDownload = true;
+
+            //if (temp.Count > 1)
+            //    temp.RemoveAt(0);
+        }
+
+        private bool _canDownload;
+        public bool canDownload
+        {
+            get
+            {
+                return _canDownload;
+            }
+            set
+            {
+                if (_canDownload != value)
+                {
+                    _canDownload = value;
+                    OnPropertyChanged("canDownload");
+                }
+            }
+        }
+
         #endregion
         #endregion
 

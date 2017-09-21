@@ -26,7 +26,6 @@ namespace ExHentaiDownloader
         {
             InitializeComponent();
             base.DataContext = _main = new VM_Main();
-            int aa = 0;
         }
     }
 }

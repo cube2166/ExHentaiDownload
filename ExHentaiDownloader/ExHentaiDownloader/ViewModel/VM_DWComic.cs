@@ -14,13 +14,14 @@ using ExHentaiDownloader.Guild;
 using ExHentaiDownloader.Command;
 using System.Windows.Media;
 using System.Threading;
+using System.Collections.Specialized;
 
 namespace ExHentaiDownloader.ViewModel
 {
     public class VM_DWComic : INotifyPropertyChanged
     {
         #region Private
-        private ObservableCollection<VM_Comic> _comicCollect;
+        private VM_Comic_Collect _comicCollect;
         #endregion
 
         #region Event
@@ -35,7 +36,13 @@ namespace ExHentaiDownloader.ViewModel
         #region Create
         public VM_DWComic(ObservableCollection<VM_Comic> clist)
         {
-            ComicCollect = clist;
+            //ComicCollect = clist;
+            ComicCollect = new VM_Comic_Collect();
+            foreach (var item in clist)
+            {
+                VM_Comic temp = new VM_Comic(item);
+                ComicCollect.Add(temp);
+            }
             Task.Run(() =>
             {
                 SpinWait.SpinUntil(() => false, 2000);
@@ -46,7 +53,7 @@ namespace ExHentaiDownloader.ViewModel
 
         #region Property
         #region ComicCollect
-        public ObservableCollection<VM_Comic> ComicCollect
+        public VM_Comic_Collect ComicCollect
         {
             get { return _comicCollect; }
             set
@@ -54,10 +61,45 @@ namespace ExHentaiDownloader.ViewModel
                 if (_comicCollect != value)
                 {
                     _comicCollect = value;
+                    _comicCollect.CollectionChanged += _comicCollect_CollectionChanged;
+
                     OnPropertyChange("ComicCollect");
                 }
             }
         }
+
+        private void _comicCollect_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (var item in e.NewItems)
+                {
+                    VM_Comic temp = item as VM_Comic;
+                    if (temp == null) continue;
+
+                    temp.finishEvent += Temp_finishEvent;
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (var item in e.OldItems)
+                {
+                    VM_Comic temp = item as VM_Comic;
+                    if (temp == null) continue;
+
+                    temp.finishEvent -= Temp_finishEvent;
+                }
+            }
+        }
+
+        private void Temp_finishEvent(VM_Comic obj)
+        {
+            lock (this)
+            {
+                ComicCollect.Remove(obj);
+            }
+        }
+
         #endregion
         #endregion
 
@@ -126,6 +168,11 @@ namespace ExHentaiDownloader.ViewModel
                     client.CancelAsync();
                     return;
                 }
+
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    comic.OnFinished();
+                });
                     
             }
             catch (Exception e)

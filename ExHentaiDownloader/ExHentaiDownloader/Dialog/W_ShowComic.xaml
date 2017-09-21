@@ -40,7 +40,7 @@
                 <RowDefinition Height="10"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="Download" Command="{Binding CmdDownload}" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{DynamicResource ButtonStyle}" Foreground="White" FontWeight="Bold" FontSize="16"/>
+                <Button Content="Download" IsEnabled="{Binding canDownload}" Command="{Binding CmdDownload}" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{DynamicResource ButtonStyle}" Foreground="White" FontWeight="Bold" FontSize="16"/>
             </StackPanel>
 
         </Grid>

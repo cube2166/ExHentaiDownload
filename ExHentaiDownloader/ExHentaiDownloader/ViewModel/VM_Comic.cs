@@ -18,6 +18,8 @@ using ExHentaiDownloader.Command;
 using ExHentaiDownloader.Dialog;
 using System.Windows.Media;
 using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace ExHentaiDownloader.ViewModel
 {
@@ -32,7 +34,18 @@ namespace ExHentaiDownloader.ViewModel
         public VM_Comic()
         {
             _comic = new M_Comic();
-        } 
+        }
+
+        public VM_Comic(VM_Comic src)
+        {
+            _comic = new M_Comic();
+            _comic.ComicImage = src.ComicImage;
+            _comic.ComicLink = src.ComicLink;
+            _comic.ComicName = src.ComicName;
+            _comic.ComicNumber = src.ComicNumber;
+            _comic.ImageLink = src.ImageLink;
+            //_comic.ThumbnailLink = src.ThumbnailLink;
+        }
         #endregion
 
         #region Event
@@ -42,6 +55,14 @@ namespace ExHentaiDownloader.ViewModel
             if (PropertyChanged != null)
                  PropertyChanged(this, new PropertyChangedEventArgs(ss));            
         }
+
+        public event Action<VM_Comic> finishEvent;
+        public void OnFinished()
+        {
+            if (finishEvent != null)
+                finishEvent(this);
+        }
+
         #endregion
 
         #region Property
@@ -242,4 +263,46 @@ namespace ExHentaiDownloader.ViewModel
 
         #endregion
     }
+
+    public class VM_Comic_Collect : ObservableCollection<VM_Comic>
+    {
+        public int MaxCount { get; set; }
+    }
+
+    //public class VM_Comic_Collect2 : VM_Comic_Collect
+    //{
+    //    //protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+    //    //{
+    //    //    if (e.Action == NotifyCollectionChangedAction.Add)
+    //    //    {
+    //    //        foreach (var item in e.NewItems)
+    //    //        {
+    //    //            VM_Comic temp = item as VM_Comic;
+    //    //            if (temp == null) continue;
+
+    //    //            temp.finishEvent += Temp_finishEvent;
+    //    //        }
+    //    //    }
+    //    //    else if (e.Action == NotifyCollectionChangedAction.Remove)
+    //    //    {
+    //    //        foreach (var item in e.OldItems)
+    //    //        {
+    //    //            VM_Comic temp = item as VM_Comic;
+    //    //            if (temp == null) continue;
+
+    //    //            temp.finishEvent -= Temp_finishEvent;
+    //    //        }
+    //    //    }
+
+    //    //    base.OnCollectionChanged(e);
+    //    //}
+
+    //    //private void Temp_finishEvent(VM_Comic obj)
+    //    //{
+    //    //    lock (this)
+    //    //    {
+    //    //        this.Remove(obj);
+    //    //    }
+    //    //}
+    //}
 }

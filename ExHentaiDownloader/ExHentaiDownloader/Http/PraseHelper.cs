@@ -61,12 +61,14 @@ namespace ExHentaiDownloader.Http
             //下載原始碼
             string htmlstring = await HttpHandler.GetStringWithCookie(url, cookie + unconfig);
             if (htmlstring == string.Empty) return null;
-            ObservableCollection<VM_Comic> tempList = new ObservableCollection<VM_Comic>();
+            //ObservableCollection<VM_Comic> tempList = new ObservableCollection<VM_Comic>();
+            VM_Comic_Collect tempList = new VM_Comic_Collect();
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(htmlstring);
 
             //找尋最多頁面到幾號
             int MaxPage = 0;
+            int MaxCount = 0;
             HtmlNode pageNode = doc.DocumentNode.SelectSingleNode(@"//div[@class='gtb']");
             try
             {
@@ -85,6 +87,9 @@ namespace ExHentaiDownloader.Http
                     if (MaxPage == 0) MaxPage = 10;
                 }
 
+                string[] tempArray2 = tempArray[0].Split(new char[] { ' ' });
+                MaxCount = int.Parse(tempArray2[5]);
+                tempList.MaxCount = MaxCount;
             }
             catch (Exception e)
             {
@@ -146,11 +151,15 @@ namespace ExHentaiDownloader.Http
                               tempVM.ComicLink = tempComicLink;
                           }
                           tempVM.ComicName = thisName;
-                          tempVM.ComicNumber = jj++.ToString();
+
+                          tempVM.ComicNumber = jj.ToString();
+
+                          //tempVM.ComicNumber = jj++.ToString();
                           lock (tempList)
                           {
                               f_OnComicInsert(tempList, tempVM);
                           }
+                          jj++;
                       }
 
                   }
