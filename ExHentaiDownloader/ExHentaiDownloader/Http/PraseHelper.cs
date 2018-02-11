@@ -42,16 +42,52 @@ namespace ExHentaiDownloader.Http
         }
         private static ObservableCollection<VM_Comic> MainHtmlNode2List(HtmlNode htmlnode)
         {
-            var result = from a in htmlnode.ChildNodes
-                         where a.HasChildNodes
-                         select new VM_Comic
-                         {
-                             ComicName = HtmlEntity.DeEntitize(a.GetNodebyClassName("id2").InnerText),
-                             ThumbnailLink = (a.GetNodebyClassName("id3").Element("a").Element("img").Attributes["src"].Value),
-                             ComicLink = (a.GetNodebyClassName("id2").Element("a").Attributes["href"].Value),
-                             ComicNumber = (a.GetNodebyClassName("id42").InnerText),
-                         };
-            return new ObservableCollection<VM_Comic>(result);
+            int ind = 0;
+            ObservableCollection<VM_Comic> result = new ObservableCollection<VM_Comic>();
+            foreach (var item in htmlnode.ChildNodes)
+            {
+                try
+                {
+                    VM_Comic temp = new VM_Comic();
+                    temp.ComicName = item.GetNodebyClassName("it5").InnerText;
+                    temp.ThumbnailLink = item.GetNodebyClassName("it2").InnerText;
+                    string ThumbnailLink_temp = temp.ThumbnailLink.Split(new char[] { '~' })[2];
+                    if (ThumbnailLink_temp == string.Empty)
+                        continue;
+                    ThumbnailLink_temp = "https://exhentai.org/" + ThumbnailLink_temp;
+                    temp.ThumbnailLink = ThumbnailLink_temp;
+                    temp.ComicLink = item.GetNodebyClassName("it5").Element("a").Attributes["href"].Value;
+                    temp.ComicNumber = ind.ToString();
+                    result.Add(temp);
+                    ind++;
+                }
+                catch (Exception)
+                {
+                }
+            }
+            //VM_Comic temp = new VM_Comic();
+            //temp.ComicName = htmlnode.ChildNodes[10].GetNodebyClassName("it5").InnerText;
+            //temp.ThumbnailLink = htmlnode.ChildNodes[10].GetNodebyClassName("it2").InnerText;
+            //string ThumbnailLink_temp = temp.ThumbnailLink.Split(new char[] { '~' })[2];
+            ////if (ThumbnailLink_temp == string.Empty)
+            ////    continue;
+            //ThumbnailLink_temp = "exhentai.org/" + ThumbnailLink_temp;
+            //temp.ThumbnailLink = ThumbnailLink_temp;
+            //temp.ComicLink = htmlnode.ChildNodes[10].GetNodebyClassName("it5").Element("a").Attributes["href"].Value;
+
+            //var result = from a in htmlnode.ChildNodes
+            //             where a.HasChildNodes
+            //             select new VM_Comic
+            //             {
+            //                 //ComicName = HtmlEntity.DeEntitize(a.GetNodebyClassName("id2").InnerText),
+            //                 ComicName = HtmlEntity.DeEntitize(a.GetNodebyClassName("it5").InnerText),
+            //                 ThumbnailLink = (a.GetNodebyClassName("id3").Element("a").Element("img").Attributes["src"].Value),
+            //                 //ComicLink = (a.GetNodebyClassName("id2").Element("a").Attributes["href"].Value),
+            //                 ComicLink = (a.GetNodebyClassName("it5").Element("a").Attributes["href"].Value),
+            //                 ComicNumber = (a.GetNodebyClassName("id42").InnerText),
+            //             };
+            //return new ObservableCollection<VM_Comic>(result);
+            return result;
         }
 
         #region Self

@@ -121,17 +121,27 @@ namespace ExHentaiDownloader.ViewModel
             client.Headers["Cookie"] = CookieHelper.GetCookie();
             //            var tt = client.DownloadDataTaskAsync(comic.ImageLink);
             String photolocation = SavePath + "/" + comic.ComicNumber + ".jpg";
+            int thread = 0;
             client.DownloadProgressChanged += (s, e) =>
             {
                 int temp = e.ProgressPercentage;
-                if (temp % 10 == 0)
+                if (temp > thread)
                 {
+                    thread += 10;
                     App.Current.Dispatcher.Invoke(() =>
                     {
-                        comic.ProgressPercentage = temp;
+                        comic.ProgressPercentage = thread;
                         comic.ProgressStatus = "Downloading";
                     });
                 }
+                //if (temp % 10 == 0)
+                //{
+                //    App.Current.Dispatcher.Invoke(() =>
+                //    {
+                //        comic.ProgressPercentage = temp;
+                //        comic.ProgressStatus = "Downloading";
+                //    });
+                //}
 
             };
             client.DownloadFileCompleted += (s, e) =>
